@@ -26,6 +26,11 @@ const MotorcycleDetailScreen: React.FC<MotorcycleDetailScreenProps> = ({ navigat
     const [motorcycle, setMotorcycle] = useState<Motorcycle | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Function to navigate to ServiceLogScreen
+    const navigateToServiceLog = () => {
+        navigation.navigate('ServiceLog', { motorcycleId });
+    };
+
     useEffect(() => {
         loadMotorcycle();
     }, []);
@@ -115,23 +120,12 @@ const MotorcycleDetailScreen: React.FC<MotorcycleDetailScreenProps> = ({ navigat
             backgroundColor: colors.background,
         },
         header: {
-            padding: 20,
-            paddingTop: 60,
+            paddingHorizontal: 20,
+            paddingBottom: 15,
+            paddingTop: 20, 
             backgroundColor: colors.surface,
             borderBottomWidth: 1,
             borderBottomColor: colors.border,
-        },
-        backButton: {
-            marginBottom: 15,
-        },
-        backButtonContent: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
-        backButtonText: {
-            color: colors.primary,
-            fontSize: 16,
-            marginLeft: 5,
         },
         headerTitle: {
             fontSize: 24,
@@ -141,13 +135,30 @@ const MotorcycleDetailScreen: React.FC<MotorcycleDetailScreenProps> = ({ navigat
         headerSubtitle: {
             fontSize: 16,
             color: colors.textSecondary,
-            marginTop: 5,
+            marginTop: 4,
         },
-        settingsButton: {
-            position: 'absolute',
-            top: 60,
-            right: 20,
-            padding: 10,
+        actionsRow: { // New style for the row
+            flexDirection: 'row',
+            alignItems: 'center', // Vertically center items in the row
+            marginHorizontal: 20, // Keep overall side padding
+            marginBottom: 15,     // Space before MaintenanceForm
+            marginTop: 15,      // Add some margin at the top of the actions section
+        },
+        mileageOuterContainer: { // New style for CurrentMileage wrapper
+            flex: 1,              // Allow CurrentMileage to take up remaining space
+            marginRight: 10,      // Space between CurrentMileage and the Service Log button
+        },
+        serviceLogButton: { 
+            backgroundColor: colors.primary,
+            paddingVertical: 10,
+            paddingHorizontal: 18,
+            borderRadius: 6,
+            alignItems: 'center',
+        },
+        serviceLogButtonText: {
+            color: colors.background,
+            fontSize: 14, // Reduced fontSize
+            fontWeight: '600', // Adjusted fontWeight
         },
         content: {
             flex: 1,
@@ -182,22 +193,6 @@ const MotorcycleDetailScreen: React.FC<MotorcycleDetailScreenProps> = ({ navigat
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.backButton} 
-                    onPress={() => navigation.goBack()}
-                >
-                    <View style={styles.backButtonContent}>
-                        <Text style={{ color: colors.primary, fontSize: 16 }}>Back</Text>
-                    </View>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                    style={styles.settingsButton} 
-                    onPress={() => navigation.navigate('Settings')}
-                >
-                    <Text style={{ fontSize: 16, color: colors.primary, fontWeight: 'bold' }}>SETTINGS</Text>
-                </TouchableOpacity>
-
                 <Text style={styles.headerTitle}>{motorcycle.name}</Text>
                 <Text style={styles.headerSubtitle}>
                     {motorcycle.make} {motorcycle.model}{motorcycle.year ? ` (${motorcycle.year})` : ''}
@@ -205,18 +200,29 @@ const MotorcycleDetailScreen: React.FC<MotorcycleDetailScreenProps> = ({ navigat
             </View>
             <ScrollView 
                 style={styles.content}
-                contentContainerStyle={{ paddingBottom: 100 }} // Adjusted for smaller tab bar
+                contentContainerStyle={{ paddingBottom: 80 }}
                 showsVerticalScrollIndicator={false}
             >
-                <CurrentMileage 
-                    currentMileage={motorcycle.currentMileage} 
-                    onUpdate={updateCurrentMileage} 
-                />
+                <View style={styles.actionsRow}>
+                    <View style={styles.mileageOuterContainer}>
+                        <CurrentMileage 
+                            currentMileage={motorcycle.currentMileage} 
+                            onUpdate={updateCurrentMileage} 
+                        />
+                    </View>
+                    <TouchableOpacity 
+                        style={styles.serviceLogButton} // Uses the modified style
+                        onPress={navigateToServiceLog}
+                    >
+                        <Text style={styles.serviceLogButtonText}>View Service Log</Text>
+                    </TouchableOpacity>
+                </View>
                 
                 <MaintenanceForm 
                     onAdd={addRecord} 
                     currentMileage={motorcycle.currentMileage} 
                 />
+
                 <MaintenanceList 
                     records={motorcycle.records} 
                     currentMileage={motorcycle.currentMileage}

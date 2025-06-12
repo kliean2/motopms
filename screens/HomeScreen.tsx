@@ -6,7 +6,6 @@ import {
     FlatList,
     StyleSheet,
     Alert,
-    Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -162,16 +161,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                     }
                 </Text>
             </View>
-            <View style={styles.headerRight}>
-                    <View style={styles.themeToggle}>
-                        <Switch
-                            value={isDarkMode}
-                            onValueChange={toggleTheme}
-                            trackColor={{ false: colors.border, true: colors.primary }}
-                            thumbColor={'#ffffff'}
-                        />
-                    </View>
-                </View>
             </View>
 
             {motorcycles.length === 0 ? (
@@ -224,11 +213,6 @@ const styles = StyleSheet.create({
     headerLeft: {
         flex: 1,
     },
-    headerRight: {
-        marginLeft: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
     titleContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -239,10 +223,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },    headerSubtitle: {
         fontSize: 16,
-    },
-    themeToggle: {
-        flexDirection: 'row',
-        alignItems: 'center',
     },
     content: {
         flex: 1,

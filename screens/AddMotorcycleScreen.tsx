@@ -14,6 +14,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../contexts/ThemeContext';
 import { Motorcycle, MOTORCYCLE_PRESETS } from '../types';
 
+// Utility function to format numbers with thousand separators
+const formatNumberWithCommas = (value: string): string => {
+    // Remove all non-digit characters
+    const numericValue = value.replace(/[^\d]/g, '');
+    
+    // Add thousand separators
+    if (numericValue) {
+        return parseInt(numericValue).toLocaleString();
+    }
+    return '';
+};
+
+// Utility function to remove formatting and get raw number
+const getNumericValue = (formattedValue: string): string => {
+    return formattedValue.replace(/,/g, '');
+};
+
 interface AddMotorcycleScreenProps {
     navigation: any;
 }
@@ -27,13 +44,19 @@ const AddMotorcycleScreen: React.FC<AddMotorcycleScreenProps> = ({ navigation })
     const [currentMileage, setCurrentMileage] = useState('');
     const [selectedPreset, setSelectedPreset] = useState('scooter');
 
+    // Handle mileage input with formatting
+    const handleMileageChange = (text: string) => {
+        const formatted = formatNumberWithCommas(text);
+        setCurrentMileage(formatted);
+    };
+
     const handleSave = async () => {
         if (!name.trim() || !make.trim() || !model.trim() || !currentMileage.trim()) {
             Alert.alert('Error', 'Please fill in all required fields');
             return;
         }
 
-        const mileage = parseFloat(currentMileage);
+        const mileage = parseFloat(getNumericValue(currentMileage));
         if (isNaN(mileage) || mileage < 0) {
             Alert.alert('Error', 'Please enter a valid mileage');
             return;
@@ -93,13 +116,14 @@ const AddMotorcycleScreen: React.FC<AddMotorcycleScreenProps> = ({ navigation })
         return `Includes ${intervals.length} maintenance items like: ${intervals.slice(0, 3).map(([key]) => key).join(', ')}${intervals.length > 3 ? '...' : ''}`;
     };
 
-    return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    return (        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
-                <Text style={[styles.headerTitle, { color: colors.text }]}>Add New Motorcycle</Text>
-                <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
-                    Set up your motorcycle to start tracking maintenance
-                </Text>
+                <View style={styles.headerLeft}>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>Add New Motorcycle</Text>
+                    <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+                        Set up your motorcycle to start tracking maintenance
+                    </Text>
+                </View>
             </View>
             <ScrollView 
                 style={styles.content} 
@@ -176,10 +200,9 @@ const AddMotorcycleScreen: React.FC<AddMotorcycleScreenProps> = ({ navigation })
                             borderColor: colors.border, 
                             color: colors.text, 
                             backgroundColor: colors.surface 
-                        }]}
-                        value={currentMileage}
-                        onChangeText={setCurrentMileage}
-                        placeholder="e.g., 10000"
+                        }]}                        value={currentMileage}
+                        onChangeText={handleMileageChange}
+                        placeholder="e.g., 100,000"
                         placeholderTextColor={colors.textSecondary}
                         keyboardType="numeric"
                     />
@@ -237,19 +260,23 @@ const AddMotorcycleScreen: React.FC<AddMotorcycleScreenProps> = ({ navigation })
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    header: {
+    },    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
         padding: 20,
-        paddingTop: 60,
         borderBottomWidth: 1,
     },
+    headerLeft: {
+        flex: 1,
+    },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
+        marginBottom: 5,
     },
     headerSubtitle: {
         fontSize: 16,
-        marginTop: 5,
     },
     content: {
         flex: 1,

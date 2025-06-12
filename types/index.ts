@@ -9,6 +9,15 @@ export interface MaintenanceRecord {
     notes?: string;
 }
 
+export interface ServiceLogEntry {
+    id: string; // Unique ID for the log entry
+    date: string; // Date of service, consider storing as ISO string and formatting for display
+    procedure: string; // Description of the service or part change
+    odometer: number; // Odometer reading at the time of service
+    amount?: number; // Cost of the service/part in PHP (optional)
+    notes?: string; // Optional additional notes
+}
+
 export interface Motorcycle {
     id: string;
     name: string;
@@ -19,6 +28,7 @@ export interface Motorcycle {
     records: MaintenanceRecord[];
     createdAt: string;
     imageUri?: string;
+    serviceLog?: ServiceLogEntry[]; // Array to store service log entries
 }
 
 export interface AppSettings {

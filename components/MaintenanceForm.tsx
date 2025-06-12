@@ -12,6 +12,23 @@ import { Picker } from '@react-native-picker/picker';
 import { useTheme } from '../contexts/ThemeContext';
 import { MaintenanceRecord, MAINTENANCE_INTERVALS } from '../types';
 
+// Utility function to format numbers with thousand separators
+const formatNumberWithCommas = (value: string): string => {
+    // Remove all non-digit characters
+    const numericValue = value.replace(/[^\d]/g, '');
+    
+    // Add thousand separators
+    if (numericValue) {
+        return parseInt(numericValue).toLocaleString();
+    }
+    return '';
+};
+
+// Utility function to remove formatting and get raw number
+const getNumericValue = (formattedValue: string): string => {
+    return formattedValue.replace(/,/g, '');
+};
+
 interface MaintenanceFormProps {
     onAdd: (record: Omit<MaintenanceRecord, 'id'>) => void;
     currentMileage: number;
@@ -22,15 +39,21 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onAdd, currentMileage
     const [modalVisible, setModalVisible] = useState(false);
     const [type, setType] = useState('');
     const [customType, setCustomType] = useState('');
-    const [mileage, setMileage] = useState(currentMileage.toString());
+    const [mileage, setMileage] = useState(currentMileage.toLocaleString());
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [partNumber, setPartNumber] = useState('');
 
     const maintenanceTypes = Object.keys(MAINTENANCE_INTERVALS);
 
+    // Handle mileage input with formatting
+    const handleMileageChange = (text: string) => {
+        const formatted = formatNumberWithCommas(text);
+        setMileage(formatted);
+    };
+
     const handleSubmit = () => {
         const selectedType = type === 'Custom' ? customType : type;
-        const maintenanceMileage = parseInt(mileage);
+        const maintenanceMileage = parseInt(getNumericValue(mileage));
         
         if (!selectedType || !maintenanceMileage || !date) {
             Alert.alert('Error', 'Please fill in all required fields');
@@ -56,16 +79,17 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onAdd, currentMileage
 
         onAdd(record);
         resetForm();
-        setModalVisible(false);
-    };
+        setModalVisible(false);    };
 
     const resetForm = () => {
         setType('');
         setCustomType('');
-        setMileage(currentMileage.toString());
+        setMileage(currentMileage.toLocaleString());
         setDate(new Date().toISOString().split('T')[0]);
         setPartNumber('');
-    };    const styles = StyleSheet.create({
+    };
+
+    const styles = StyleSheet.create({
         addButton: {
             backgroundColor: colors.primary,
             padding: 15,
@@ -203,7 +227,7 @@ const MaintenanceForm: React.FC<MaintenanceFormProps> = ({ onAdd, currentMileage
                         <TextInput
                             style={styles.input}
                             value={mileage}
-                            onChangeText={setMileage}
+                            onChangeText={handleMileageChange}
                             placeholder="Enter mileage"
                             placeholderTextColor={colors.textSecondary}
                             keyboardType="numeric"

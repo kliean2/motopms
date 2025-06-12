@@ -11,6 +11,20 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../contexts/ThemeContext';
 
+// Utility function to format numbers with thousand separators
+const formatNumberWithCommas = (value: string): string => {
+    const numericValue = value.replace(/[^\d]/g, '');
+    if (numericValue) {
+        return parseInt(numericValue).toLocaleString();
+    }
+    return '';
+};
+
+// Utility function to remove formatting and get raw number
+const getNumericValue = (formattedValue: string): string => {
+    return formattedValue.replace(/,/g, '');
+};
+
 interface KMPLCalculatorScreenProps {
     navigation: any;
 }
@@ -20,8 +34,18 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
     const [firstOdometer, setFirstOdometer] = useState('');
     const [secondOdometer, setSecondOdometer] = useState('');
     const [fuelFilled, setFuelFilled] = useState('');
-    const [result, setResult] = useState<number | null>(null);
+    const [result, setResult] = useState<number | null>(null);    // Handle first odometer input with formatting
+    const handleFirstOdometerChange = (text: string) => {
+        const formatted = formatNumberWithCommas(text);
+        setFirstOdometer(formatted);
+    };
 
+    // Handle second odometer input with formatting
+    const handleSecondOdometerChange = (text: string) => {
+        const formatted = formatNumberWithCommas(text);
+        setSecondOdometer(formatted);
+    };
+    
     const resetForm = () => {
         setFirstOdometer('');
         setSecondOdometer('');
@@ -36,9 +60,9 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
             return false;
         }
 
-        // Convert to numbers
-        const first = parseFloat(firstOdometer);
-        const second = parseFloat(secondOdometer);
+        // Convert to numbers using getNumericValue for formatted inputs
+        const first = parseFloat(getNumericValue(firstOdometer));
+        const second = parseFloat(getNumericValue(secondOdometer));
         const fuel = parseFloat(fuelFilled);
 
         // Check if all inputs are valid numbers
@@ -60,8 +84,7 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
         }
 
         // Check realistic ranges
-        if (fuel > 150) {
-            Alert.alert('Warning', 'Fuel amount seems unusually high (>150L). Please verify.');
+        if (fuel > 150) {            Alert.alert('Warning', 'Fuel amount seems unusually high (>150L). Please verify.');
             return false;
         }
 
@@ -70,7 +93,7 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
             Alert.alert('Warning', 'Distance seems unusually high (>2000km). Please verify.');
             return false;
         }
-
+        
         if (distance < 10) {
             Alert.alert('Warning', 'Distance seems too short (<10km) for accurate calculation.');
             return false;
@@ -82,8 +105,8 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
     const calculateKMPL = () => {
         if (!validateInputs()) return;
 
-        const first = parseFloat(firstOdometer);
-        const second = parseFloat(secondOdometer);
+        const first = parseFloat(getNumericValue(firstOdometer));
+        const second = parseFloat(getNumericValue(secondOdometer));
         const fuel = parseFloat(fuelFilled);
 
         const distance = second - first;
@@ -100,7 +123,8 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
         return { rating: 'Poor', color: colors.danger };
     };
 
-    return (        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    return (
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
                 <Text style={[styles.headerTitle, { color: colors.text }]}>KMPL Calculator</Text>
                 <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
@@ -141,8 +165,8 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
                             backgroundColor: colors.surface 
                         }]}
                         value={firstOdometer}
-                        onChangeText={setFirstOdometer}
-                        placeholder="e.g., 15000"
+                        onChangeText={handleFirstOdometerChange}
+                        placeholder="e.g., 150,000"
                         placeholderTextColor={colors.textSecondary}
                         keyboardType="numeric"
                     />
@@ -157,8 +181,8 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
                             backgroundColor: colors.surface 
                         }]}
                         value={secondOdometer}
-                        onChangeText={setSecondOdometer}
-                        placeholder="e.g., 15300"
+                        onChangeText={handleSecondOdometerChange}
+                        placeholder="e.g., 153,000"
                         placeholderTextColor={colors.textSecondary}
                         keyboardType="numeric"
                     />
@@ -193,8 +217,9 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
                                 {getKMPLRating(result).rating}
                             </Text>
                         </View>
+                        
                         <Text style={[styles.resultDetails, { color: colors.textSecondary }]}>
-                            Distance: {(parseFloat(secondOdometer) - parseFloat(firstOdometer)).toFixed(0)} km
+                            Distance: {(parseFloat(getNumericValue(secondOdometer)) - parseFloat(getNumericValue(firstOdometer))).toFixed(0)} km
                         </Text>
                         <Text style={[styles.resultDetails, { color: colors.textSecondary }]}>
                             Fuel Used: {fuelFilled} L
@@ -227,7 +252,9 @@ const KMPLCalculatorScreen: React.FC<KMPLCalculatorScreenProps> = ({ navigation 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },    header: {
+    },
+    
+    header: {
         padding: 20,
         borderBottomWidth: 1,
     },

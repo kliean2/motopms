@@ -11,6 +11,23 @@ import {
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 
+// Utility function to format numbers with thousand separators
+const formatNumberWithCommas = (value: string): string => {
+    // Remove all non-digit characters
+    const numericValue = value.replace(/[^\d]/g, '');
+    
+    // Add thousand separators
+    if (numericValue) {
+        return parseInt(numericValue).toLocaleString();
+    }
+    return '';
+};
+
+// Utility function to remove formatting and get raw number
+const getNumericValue = (formattedValue: string): string => {
+    return formattedValue.replace(/,/g, '');
+};
+
 interface CurrentMileageProps {
     currentMileage: number;
     onUpdate: (newMileage: number) => void;
@@ -19,10 +36,16 @@ interface CurrentMileageProps {
 const CurrentMileage: React.FC<CurrentMileageProps> = ({ currentMileage, onUpdate }) => {
     const { colors } = useTheme();
     const [modalVisible, setModalVisible] = useState(false);
-    const [newMileage, setNewMileage] = useState(currentMileage.toString());
+    const [newMileage, setNewMileage] = useState(currentMileage.toLocaleString());
+
+    // Handle mileage input with formatting
+    const handleMileageChange = (text: string) => {
+        const formatted = formatNumberWithCommas(text);
+        setNewMileage(formatted);
+    };
 
     const handleUpdate = () => {
-        const mileage = parseFloat(newMileage);
+        const mileage = parseFloat(getNumericValue(newMileage));
         
         if (isNaN(mileage) || mileage < 0) {
             Alert.alert('Error', 'Please enter a valid mileage');
@@ -49,7 +72,7 @@ const CurrentMileage: React.FC<CurrentMileageProps> = ({ currentMileage, onUpdat
             setModalVisible(false);
         }
     };    const openModal = () => {
-        setNewMileage(currentMileage.toString());
+        setNewMileage(currentMileage.toLocaleString());
         setModalVisible(true);
     };
 
@@ -81,7 +104,7 @@ const CurrentMileage: React.FC<CurrentMileageProps> = ({ currentMileage, onUpdat
                                 backgroundColor: colors.surface 
                             }]}
                             value={newMileage}
-                            onChangeText={setNewMileage}
+                            onChangeText={handleMileageChange}
                             placeholder="Enter current mileage"
                             placeholderTextColor={colors.textSecondary}
                             keyboardType="numeric"

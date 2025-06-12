@@ -17,7 +17,7 @@ interface SettingsScreenProps {
 }
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
-    const { colors } = useTheme();
+    const { colors, isDarkMode, toggleTheme } = useTheme(); // Added isDarkMode and toggleTheme
 
     const clearAllData = () => {
         Alert.alert(
@@ -63,18 +63,27 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
         container: {
             flex: 1,
             backgroundColor: colors.background,
-        },
-        header: {
+        },        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
             padding: 20,
-            paddingTop: 60,
             backgroundColor: colors.surface,
             borderBottomWidth: 1,
             borderBottomColor: colors.border,
         },
+        headerLeft: {
+            flex: 1,
+        },
         headerTitle: {
-            fontSize: 24,
+            fontSize: 28,
             fontWeight: 'bold',
             color: colors.text,
+            marginBottom: 5,
+        },
+        headerSubtitle: {
+            fontSize: 16,
+            color: colors.textSecondary,
         },
         content: {
             flex: 1,
@@ -132,18 +141,37 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
             color: colors.textSecondary,
             textAlign: 'center',
             marginTop: 10,
-        },    });
+        },
+    });
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Settings</Text>
+                <View style={styles.headerLeft}>
+                    <Text style={styles.headerTitle}>Settings</Text>
+                    <Text style={styles.headerSubtitle}>
+                        Manage your app preferences and data
+                    </Text>
+                </View>
             </View>
-              <ScrollView
+            <ScrollView
                 style={styles.content} 
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 100 }} // Adjusted for smaller tab bar
             >
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Appearance</Text>
+                <View style={styles.settingItem}>
+                    <Text style={styles.settingLabel}>Dark Mode</Text>
+                    <Switch
+                        value={isDarkMode}
+                        onValueChange={toggleTheme}
+                        trackColor={{ false: colors.border, true: colors.primary }}
+                        thumbColor={'#ffffff'}
+                    />
+                </View>
+            </View>
+
             <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Data Management</Text>
                     
@@ -166,8 +194,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
                         <Text style={styles.aboutText}>
                             Motorcycle PMS Tracker helps you keep track of your motorcycle maintenance schedule. 
                             Never miss an important service again with automatic due date calculations and visual alerts.
-                            {'\n\n'}
-                            Built with React Native and Expo for a smooth, native experience.                        </Text>
+                        </Text>
                     </View>
                     
                     <Text style={styles.version}>Version 1.0.0</Text>

@@ -11,18 +11,46 @@ import {
 } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 
+// Utility function to format numbers with thousand separators
+const formatNumberWithCommas = (value: string): string => {
+    // Remove all non-digit characters
+    const numericValue = value.replace(/[^\d]/g, '');
+    
+    // Add thousand separators
+    if (numericValue) {
+        return parseInt(numericValue).toLocaleString();
+    }
+    return '';
+};
+
+// Utility function to remove formatting and get raw number
+const getNumericValue = (formattedValue: string): string => {
+    return formattedValue.replace(/,/g, '');
+};
+
 interface KMPLCalculatorProps {
     isVisible: boolean;
     onClose: () => void;
 }
 
 const KMPLCalculator: React.FC<KMPLCalculatorProps> = ({ isVisible, onClose }) => {
-    const { colors } = useTheme();
-    const [firstOdometer, setFirstOdometer] = useState('');
+    const { colors } = useTheme();    const [firstOdometer, setFirstOdometer] = useState('');
     const [secondOdometer, setSecondOdometer] = useState('');
     const [fuelFilled, setFuelFilled] = useState('');
     const [result, setResult] = useState<number | null>(null);
     const [showTutorial, setShowTutorial] = useState(true);
+
+    // Handle first odometer input with formatting
+    const handleFirstOdometerChange = (text: string) => {
+        const formatted = formatNumberWithCommas(text);
+        setFirstOdometer(formatted);
+    };
+
+    // Handle second odometer input with formatting
+    const handleSecondOdometerChange = (text: string) => {
+        const formatted = formatNumberWithCommas(text);
+        setSecondOdometer(formatted);
+    };
 
     const resetForm = () => {
         setFirstOdometer('');
@@ -30,18 +58,16 @@ const KMPLCalculator: React.FC<KMPLCalculatorProps> = ({ isVisible, onClose }) =
         setFuelFilled('');
         setResult(null);
         setShowTutorial(true);
-    };
-
-    const validateInputs = () => {
+    };    const validateInputs = () => {
         // Check if all fields are filled
         if (!firstOdometer.trim() || !secondOdometer.trim() || !fuelFilled.trim()) {
             Alert.alert('Error', 'Please fill in all fields');
             return false;
         }
 
-        // Convert to numbers
-        const first = parseFloat(firstOdometer);
-        const second = parseFloat(secondOdometer);
+        // Convert to numbers using getNumericValue for formatted inputs
+        const first = parseFloat(getNumericValue(firstOdometer));
+        const second = parseFloat(getNumericValue(secondOdometer));
         const fuel = parseFloat(fuelFilled);
 
         // Check if all inputs are valid numbers
@@ -80,13 +106,11 @@ const KMPLCalculator: React.FC<KMPLCalculatorProps> = ({ isVisible, onClose }) =
         }
 
         return true;
-    };
-
-    const calculateKMPL = () => {
+    };    const calculateKMPL = () => {
         if (!validateInputs()) return;
 
-        const first = parseFloat(firstOdometer);
-        const second = parseFloat(secondOdometer);
+        const first = parseFloat(getNumericValue(firstOdometer));
+        const second = parseFloat(getNumericValue(secondOdometer));
         const fuel = parseFloat(fuelFilled);
 
         const distance = second - first;
@@ -146,32 +170,30 @@ const KMPLCalculator: React.FC<KMPLCalculatorProps> = ({ isVisible, onClose }) =
                         <View style={styles.inputContainer}>
                             <Text style={[styles.label, { color: colors.text }]}>
                                 First Odometer Reading (km) <Text style={{ color: colors.danger }}>*</Text>
-                            </Text>
-                            <TextInput
+                            </Text>                            <TextInput
                                 style={[styles.input, { 
                                     borderColor: colors.border, 
                                     color: colors.text, 
                                     backgroundColor: colors.surface 
                                 }]}
                                 value={firstOdometer}
-                                onChangeText={setFirstOdometer}
-                                placeholder="e.g., 15000"
+                                onChangeText={handleFirstOdometerChange}
+                                placeholder="e.g., 150,000"
                                 placeholderTextColor={colors.textSecondary}
                                 keyboardType="numeric"
                             />
 
                             <Text style={[styles.label, { color: colors.text }]}>
                                 Second Odometer Reading (km) <Text style={{ color: colors.danger }}>*</Text>
-                            </Text>
-                            <TextInput
+                            </Text>                            <TextInput
                                 style={[styles.input, { 
                                     borderColor: colors.border, 
                                     color: colors.text, 
                                     backgroundColor: colors.surface 
                                 }]}
                                 value={secondOdometer}
-                                onChangeText={setSecondOdometer}
-                                placeholder="e.g., 15300"
+                                onChangeText={handleSecondOdometerChange}
+                                placeholder="e.g., 153,000"
                                 placeholderTextColor={colors.textSecondary}
                                 keyboardType="numeric"
                             />
@@ -205,9 +227,8 @@ const KMPLCalculator: React.FC<KMPLCalculatorProps> = ({ isVisible, onClose }) =
                                     <Text style={styles.ratingText}>
                                         {getKMPLRating(result).rating}
                                     </Text>
-                                </View>
-                                <Text style={[styles.resultDetails, { color: colors.textSecondary }]}>
-                                    Distance: {(parseFloat(secondOdometer) - parseFloat(firstOdometer)).toFixed(0)} km
+                                </View>                                <Text style={[styles.resultDetails, { color: colors.textSecondary }]}>
+                                    Distance: {(parseFloat(getNumericValue(secondOdometer)) - parseFloat(getNumericValue(firstOdometer))).toLocaleString()} km
                                 </Text>
                                 <Text style={[styles.resultDetails, { color: colors.textSecondary }]}>
                                     Fuel Used: {fuelFilled} L

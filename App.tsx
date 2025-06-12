@@ -13,6 +13,7 @@ import AddMotorcycleScreen from './screens/AddMotorcycleScreen';
 import MotorcycleDetailScreen from './screens/MotorcycleDetailScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import KMPLCalculatorScreen from './screens/KMPLCalculatorScreen';
+import ServiceLogScreen from './screens/ServiceLogScreen'; // Add this import
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -31,6 +32,7 @@ const HomeStack = () => {
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="AddMotorcycle" component={AddMotorcycleScreen} />
       <Stack.Screen name="MotorcycleDetail" component={MotorcycleDetailScreen} />
+      <Stack.Screen name="ServiceLog" component={ServiceLogScreen} />
     </Stack.Navigator>
   );
 };
